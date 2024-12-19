@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        #gameContainer {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #choices {
+            margin-bottom: 20px;
+        }
+
+        .choice {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .choice:hover {
+            transform: scale(1.1);
+        }
+
+        #result {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #scoreBox {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f9f9f9;
+        }
+
+        .scoreItem {
+            text-align: center;
+        }
+
+        .scoreItem p {
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #roundsLeft {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        #finalResult {
+            font-size: 28px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #winner {
+            color: green;
+        }
+
+        #loser {
+            color: red;
+        }
+
+        #draw {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>Rock, Paper, Scissors</h1>
+        <div id="choices">
+            <img class="choice" id="rock" src="C:/Users/ARUL/Downloads/rock.jpg" alt="Rock">
+            <img class="choice" id="paper" src="C:/Users/ARUL/Downloads/paper.jpeg" alt="Paper">
+            <img class="choice" id="scissors" src="C:/Users/ARUL/Downloads/scissor.png" alt="Scissors">
+        </div>
+        <div id="result"></div>
+
+        <!-- Score Box -->
+        <div id="scoreBox">
+            <div class="scoreItem">
+                <p>Player</p>
+                <p id="playerScore">0</p>
+            </div>
+            <div class="scoreItem">
+                <p>Computer</p>
+                <p id="computerScore">0</p>
+            </div>
+        </div>
+
+        <!-- Rounds Left -->
+        <div id="roundsLeft">Rounds Left: 10</div>
+
+        <!-- Final Result -->
+        <div id="finalResult"></div>
+    </div>
+
+    <script>
+        // Variables to store scores, rounds, and player's last choice
+        let playerScore = 0;
+        let computerScore = 0;
+        let roundsLeft = 10;
+        let lastPlayerChoice = null;
+
+        // DOM elements
+        const playerScoreElem = document.getElementById('playerScore');
+        const computerScoreElem = document.getElementById('computerScore');
+        const resultElem = document.getElementById('result');
+        const roundsLeftElem = document.getElementById('roundsLeft');
+        const finalResultElem = document.getElementById('finalResult');
+
+        // Possible choices
+        const choices = ['rock', 'paper', 'scissors'];
+
+        // Function to generate computer's choice strategically
+        function getComputerChoice() {
+            if (lastPlayerChoice) {
+                // Counter player's last choice
+                switch (lastPlayerChoice) {
+                    case 'rock': return Math.random() > 0.3 ? 'paper' : 'scissors'; // Mostly counters rock with paper
+                    case 'paper': return Math.random() > 0.3 ? 'scissors' : 'rock'; // Mostly counters paper with scissors
+                    case 'scissors': return Math.random() > 0.3 ? 'rock' : 'paper'; // Mostly counters scissors with rock
+                }
+            }
+            // Random choice for the first round
+            const randomIndex = Math.floor(Math.random() * 3);
+            return choices[randomIndex];
+        }
+
+        // Function to determine the winner of a round
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'It\'s a tie!';
+            }
+
+            if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                playerScore += 10; // Player wins this round
+                return 'You win this round!';
+            } else {
+                computerScore += 10; // Computer wins this round
+                return 'Computer wins this round!';
+            }
+        }
+
+        // Function to update the game
+        function updateGame(playerChoice) {
+            if (roundsLeft <= 0) return; // Stop the game if no rounds are left
+
+            // Store player's last choice
+            lastPlayerChoice = playerChoice;
+
+            const computerChoice = getComputerChoice();
+            const resultMessage = determineWinner(playerChoice, computerChoice);
+
+            // Update scores
+            playerScoreElem.textContent = `${playerScore}`;
+            computerScoreElem.textContent = `${computerScore}`;
+
+            // Display result of this round
+            resultElem.textContent = `You chose ${playerChoice}. Computer chose ${computerChoice}. ${resultMessage}`;
+
+            // Decrease rounds left
+            roundsLeft--;
+            roundsLeftElem.textContent = `Rounds Left: ${roundsLeft}`;
+
+            // Check if the game has ended
+            if (roundsLeft === 0) {
+                // Display final result
+                if (playerScore > computerScore) {
+                    finalResultElem.textContent = 'Congratulations! You are the winner!';
+                    finalResultElem.style.color = 'green';
+                } else if (playerScore < computerScore) {
+                    finalResultElem.textContent = 'Sorry! Computer is the winner!';
+                    finalResultElem.style.color = 'red';
+                } else {
+                    finalResultElem.textContent = 'It\'s a draw!';
+                    finalResultElem.style.color = 'orange';
+                }
+            }
+        }
+
+        // Event listeners for player's choices
+        document.getElementById('rock').addEventListener('click', () => updateGame('rock'));
+        document.getElementById('paper').addEventListener('click', () => updateGame('paper'));
+        document.getElementById('scissors').addEventListener('click', () => updateGame('scissors'));
+    </script>
+</body>
+</html>
